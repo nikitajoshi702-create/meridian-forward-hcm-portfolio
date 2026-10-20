@@ -102,28 +102,67 @@ if page == "Problem":
 
 else:
     st.markdown("## 02 / The Output")
-    st.write("**Recommended output:** a capability-led HR action plan that protects existing services, improves decision speed and fills validated specialist gaps without relying on permanent hires that cannot arrive within the four-week pilot.")
-    st.markdown("### The proposed solution")
+    st.write("**Recommended output:** a conditional, capability-led HR action plan. The plan protects existing services, validates workload assumptions, addresses role-specific skill shortages and avoids relying on permanent hires that cannot contribute within the four-week pilot.")
+
+    st.markdown("### 1. Our proposed action plan")
     x,y,z = st.columns(3)
     with x:
-        st.markdown('<div class="panel"><h3>01 · Redesign work</h3><p>Validate duplicate work, retain essential service tasks and redeploy suitable internal capacity.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel"><h3>01 · Validate and redesign work</h3><p>Confirm whether duplicate packs can genuinely be removed, retain essential service tasks, and redeploy suitable internal capacity.</p></div>', unsafe_allow_html=True)
     with y:
-        st.markdown('<div class="panel"><h3>02 · Fill skill gaps</h3><p>Develop internal talent first; use temporary specialists only for confirmed residual gaps.</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="panel"><h3>02 · Close capability gaps</h3><p>Develop or redeploy internal talent first. Consider temporary specialists only for confirmed residual gaps and only after approval.</p></div>', unsafe_allow_html=True)
     with z:
-        st.markdown('<div class="panel"><h3>03 · Clarify decisions</h3><p>Delegate low-risk operational choices locally, with clear escalation for high-risk or cross-functional decisions.</p></div>', unsafe_allow_html=True)
-    st.markdown("### Decision metrics")
-    a,b,c = st.columns(3)
-    a.metric("Baseline net balance", "+116 hours")
-    b.metric("Conditional vendor option", "₹3.76 lakh")
-    c.metric("Four-week budget cap", "₹6.00 lakh")
-    st.markdown("### Downside scenario")
-    d,e = st.columns(2)
-    d.metric("Demand if 240 hours remain", "2,108 hours")
-    e.metric("Downside vendor estimate", "₹6.40 lakh", delta="₹0.40 lakh above cap", delta_color="inverse")
-    st.error("Decision gate: do not proceed on the baseline until duplicate-work removal, role-level capacity, vendor quote and service impact are validated. If the assumption fails, revise scope, timeline or budget.")
-    st.markdown("### Final recommendation")
-    st.success("Proceed conditionally: protect existing services, validate workload reduction, redeploy and train where feasible, source approved temporary specialist support for confirmed gaps, and apply selective decentralisation with clear escalation.")
-    st.caption("The vendor option is a proposal, not an approved purchase. Replace assumptions with verified team evidence before submission.")
+        st.markdown('<div class="panel"><h3>03 · Make decisions clearer</h3><p>Delegate low-risk operational choices locally; define joint decisions, escalation triggers and accountable owners for higher-risk matters.</p></div>', unsafe_allow_html=True)
+
+    st.markdown("### 2. What the numbers tell us")
+    m1,m2,m3,m4 = st.columns(4)
+    m1.metric("Available capacity", "1,984 h")
+    m2.metric("Baseline demand", "1,868 h")
+    m3.metric("Paper surplus", "+116 h")
+    m4.metric("Specialist shortages", "216 h")
+
+    cap = pd.DataFrame({"Measure":["Available capacity","Baseline pilot demand","Demand if duplicate work remains"],"Hours":[1984,1868,2108]})
+    fig = px.bar(cap, x="Measure", y="Hours", text="Hours", title="Capacity and demand: baseline versus downside", color="Measure", color_discrete_sequence=["#3567D4","#138A80","#D97706"])
+    fig.update_traces(textposition="outside", marker_line_width=0)
+    fig.update_layout(showlegend=False, plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font=dict(color="#172B43"), title_font=dict(color="#14243A",size=18), yaxis_title="Hours per four-week planning period", xaxis_title="", margin=dict(l=10,r=10,t=60,b=10), yaxis=dict(range=[0,2350]))
+    st.plotly_chart(fig, use_container_width=True)
+    st.info("**Interpretation:** The baseline shows a surplus of 116 hours only at total-workload level. If the 240 hours of assumed duplicate work are not removed, demand becomes 2,108 hours—124 hours above the stated 1,984-hour capacity. Therefore, the surplus is conditional, not guaranteed spare capacity.")
+
+    st.markdown("### 3. Specialist capability gaps")
+    gaps = pd.DataFrame({"Specialist area":["Data preparation","Quality assurance","Legacy expertise"],"Gap (hours)":[80,72,64]})
+    gc1,gc2 = st.columns([1,1])
+    with gc1:
+        fig_gap = px.bar(gaps, x="Specialist area", y="Gap (hours)", text="Gap (hours)", title="216 hours of identified specialist gaps", color="Specialist area", color_discrete_sequence=["#3567D4","#138A80","#7295D9"])
+        fig_gap.update_traces(textposition="outside", marker_line_width=0)
+        fig_gap.update_layout(showlegend=False, plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font=dict(color="#172B43"), title_font=dict(color="#14243A",size=17), xaxis_title="", yaxis_title="Hours", margin=dict(l=5,r=5,t=55,b=5))
+        st.plotly_chart(fig_gap, use_container_width=True)
+    with gc2:
+        fig_pie = px.pie(gaps, names="Specialist area", values="Gap (hours)", hole=.58, title="Share of total specialist gap", color_discrete_sequence=["#3567D4","#138A80","#7295D9"])
+        fig_pie.update_traces(textinfo="label+percent", textposition="outside")
+        fig_pie.update_layout(showlegend=False, plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font=dict(color="#172B43"), title_font=dict(color="#14243A",size=17), margin=dict(l=10,r=10,t=55,b=10))
+        st.plotly_chart(fig_pie, use_container_width=True)
+    st.write("**Interpretation:** Data preparation is the largest single gap (80 hours), followed by QA (72 hours) and legacy expertise (64 hours). These gaps should be addressed by role and skill—not by assuming that any available employee can do every task.")
+
+    st.markdown("### 4. Assumptions register: what we assumed and why it matters")
+    assumptions = pd.DataFrame([
+        {"Planning assumption":"60 duplicate customer packs can be removed","Used in analysis":"240 hours are removed from the workload baseline","Why it matters":"If false, demand rises to 2,108 hours and the baseline capacity surplus disappears","Validation needed":"Confirm pack count, effort per pack and no negative service impact"},
+        {"Planning assumption":"80% of contracted time is productive","Used in analysis":"160 contracted hours × 80% = 128 productive hours per employee per four weeks, before existing commitments","Why it matters":"Actual availability may be lower due to BAU work, leave, meetings or other commitments","Validation needed":"Check actual schedules and committed service workload"},
+        {"Planning assumption":"Specialist gaps can be filled in time","Used in analysis":"216 hours across data preparation, QA and legacy expertise require a response","Why it matters":"Total capacity does not guarantee the required specialist skills are available","Validation needed":"Map named people, proficiency, hours and availability"},
+        {"Planning assumption":"Temporary specialist support may be available","Used in analysis":"Conditional vendor option estimated at ₹3.76 lakh, within the ₹6 lakh cap","Why it matters":"Availability, procurement approval and final quote are not guaranteed","Validation needed":"Confirm scope, quote, lead time, access and approval before commitment"},
+        {"Planning assumption":"Permanent hiring will not support the four-week pilot","Used in analysis":"Hiring lead time is estimated at eight weeks, later than the pilot window","Why it matters":"A new permanent hire may contribute no pilot hours within the required period","Validation needed":"Verify hiring lead time; prioritise internal redeployment for immediate needs"},
+    ])
+    st.dataframe(assumptions, use_container_width=True, hide_index=True)
+
+    st.markdown("### 5. Budget and decision gate")
+    budget = pd.DataFrame({"Option / benchmark":["Four-week budget cap","Conditional vendor option","Downside vendor estimate"],"Cost (₹ lakh)":[6.00,3.76,6.40]})
+    fig_cost = px.bar(budget, x="Option / benchmark", y="Cost (₹ lakh)", text="Cost (₹ lakh)", title="Cost estimates compared with the ₹6 lakh cap", color="Option / benchmark", color_discrete_sequence=["#3567D4","#138A80","#D97706"])
+    fig_cost.update_traces(texttemplate="₹%{y:.2f}L", textposition="outside", marker_line_width=0)
+    fig_cost.update_layout(showlegend=False, plot_bgcolor="#FFFFFF", paper_bgcolor="#FFFFFF", font=dict(color="#172B43"), title_font=dict(color="#14243A",size=18), xaxis_title="", yaxis_title="₹ lakh", yaxis=dict(range=[0,7.3]), margin=dict(l=10,r=10,t=60,b=10))
+    st.plotly_chart(fig_cost, use_container_width=True)
+    st.write("**Interpretation:** The ₹3.76 lakh vendor option is a conditional proposal, not an approved purchase. The ₹6.40 lakh downside estimate is ₹0.40 lakh above the ₹6 lakh cap. The team should not commit until the workload reduction, role-level capacity, service impact, final quote and approvals are verified.")
+
+    st.markdown("### 6. Our recommendation")
+    st.success("Proceed conditionally—not automatically. First validate the 240-hour workload reduction and actual employee availability. Then redeploy and train internal employees where feasible, secure approved temporary specialists for confirmed residual gaps, and use clear decision rights and escalation routes. If the assumptions fail, revise the scope, timeline or budget before proceeding.")
+    st.caption("Transparency note: figures are the team's planning model. Assumptions are explicitly labelled and should be validated against the case exhibits, team evidence and final vendor information. Vendor costs are estimates, not approved expenditure.")
 
 st.sidebar.divider()
 st.sidebar.caption("Problem • evidence • output")
